@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>資料を探究！〜南蛮貿易図屏風のひみつを見つけよう〜</title>
+  <!-- かわいい丸ゴシックフォント（オフラインでもsystem fontでフォールバック） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&family=Kaisei+Decol:wght@700&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- =====================================================
+       共通ヘッダー（タイトル画面以外で表示）
+       progress-bar は現在の進行状況をざっくり表示
+       ===================================================== -->
+  <header id="app-header" class="app-header hidden">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="header-logo">🏯</span>
+        <div class="header-text-group">
+          <span class="header-title">資料を探究！</span>
+          <span id="header-subtitle" class="header-subtitle" aria-live="polite"></span>
+        </div>
+      </div>
+      <div class="progress-wrap" aria-label="進行状況">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <span id="progress-text" class="progress-text">1 / 12</span>
+      </div>
+      <button id="btn-reset" class="btn-mini" title="最初に戻る（入力もリセットされます）">最初に戻る</button>
+    </div>
+  </header>
+
+  <main id="app">
+
+    <!-- =====================================================
+         画面0: パスワード認証画面（最初に表示）
+         ===================================================== -->
+    <section id="screen-auth" class="screen screen-auth active">
+      <div class="auth-wrap">
+        <div class="auth-deco">― 教材 ―</div>
+        <h1 class="auth-title">パスワード入力</h1>
+        <p class="auth-desc">
+          教材を閲覧するには、<br>
+          先生から教わったパスワードを入力してください。
+        </p>
+        <form id="auth-form" class="auth-form" autocomplete="off" novalidate>
+          <input
+            type="password"
+            id="auth-input"
+            class="auth-input"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            placeholder="パスワード"
+            aria-label="パスワード"
+            maxlength="20"
+          />
+          <button type="submit" class="btn btn-luxe btn-large auth-submit">入る</button>
+        </form>
+        <p id="auth-error" class="auth-error" role="alert" aria-live="assertive"></p>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面1: タイトル画面
+         ===================================================== -->
+    <section id="screen-title" class="screen screen-title">
+      <div class="title-wrap">
+        <div class="title-deco">🌊⛵🏯</div>
+        <h1 class="title-main">資料を探究！</h1>
+        <p class="title-sub">〜南蛮貿易図屏風のひみつを見つけよう〜</p>
+        <p class="title-desc">
+          気になるところを見つけて、考えて、調べて、もう一度見てみよう！
+        </p>
+        <button class="btn btn-primary btn-large btn-luxe" data-action="go-select">
+          はじめる
+        </button>
+        <p class="title-note">PC・タブレットでの利用をおすすめします</p>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面2: 資料選択画面
+         ===================================================== -->
+    <section id="screen-select" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">📜 資料を選ぼう</h2>
+        <p class="screen-lead">2枚の南蛮貿易図屏風から、探究したい1枚を選んでください。</p>
+
+        <div class="resource-grid">
+          <!-- 資料カードはJSで動的に生成します -->
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-primary" data-action="go-explore-first" disabled id="btn-go-explore-first">
+            この資料を探究する！
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面3: 資料探索画面（1回目）
+         ===================================================== -->
+    <section id="screen-explore-1" class="screen">
+      <div class="container container-wide">
+        <h2 class="screen-title-text">資料を観察しよう</h2>
+        <p class="screen-lead">
+          気になるポイントをクリックして説明を読み、1つ選んで探究を始めよう。
+          <span class="hint-text">（ズームボタンで拡大もできます）</span>
+        </p>
+
+        <div class="explore-layout">
+          <!-- 資料表示エリア -->
+          <div class="image-area">
+            <div class="zoom-toolbar">
+              <button class="btn-zoom" data-zoom="out" aria-label="縮小">−</button>
+              <button class="btn-zoom" data-zoom="reset" aria-label="リセット">⟲</button>
+              <button class="btn-zoom" data-zoom="in" aria-label="拡大">＋</button>
+              <span class="zoom-level" id="zoom-level-1">100%</span>
+            </div>
+            <div class="image-viewport" data-explore="1">
+              <div class="image-stage" data-stage="1">
+                <img class="resource-image" data-img="1" alt="選択した資料" />
+                <!-- クリックポイントはJSで生成 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 説明エリア（右側）-->
+          <aside class="info-panel" data-info="1">
+            <h3 class="info-title">ポイントの説明</h3>
+            <p class="info-empty">気になる丸印をクリックすると、ここに説明が表示されます。</p>
+            <div class="info-content hidden">
+              <div class="info-badge"></div>
+              <h4 class="info-name"></h4>
+              <p class="info-desc"></p>
+              <button class="btn btn-primary btn-block" data-action="select-point-1">
+                このポイントを探究する！
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面4: 1つ目の探究メモ（AI使用前）
+         ===================================================== -->
+    <section id="screen-memo-pre-1" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">まずは自分で考えてみよう</h2>
+        <p class="screen-lead">AIに相談する前に、自分の目で気づいたことを記録しましょう。</p>
+
+        <div class="memo-card">
+          <div class="memo-row">
+            <label class="memo-label">注目したもの</label>
+            <div class="memo-pill" data-bind="exp1.pointName">—</div>
+          </div>
+
+          <div class="memo-row">
+            <label class="memo-label" for="exp1-firstNotice">
+              最初に気づいたこと
+              <span class="memo-hint">例：「服装が違う」「船が大きい」「荷物が多い」</span>
+            </label>
+            <textarea id="exp1-firstNotice" class="memo-textarea" data-bind="exp1.firstNotice"
+              placeholder="気づいたことを自由に書いてみよう"></textarea>
+          </div>
+
+          <div class="memo-row">
+            <label class="memo-label" for="exp1-whereLooked">
+              資料のどこを見てそう思った？
+              <span class="memo-hint">例：「黒い服」「帽子」「大きな船」「荷物を運んでいる様子」</span>
+            </label>
+            <textarea id="exp1-whereLooked" class="memo-textarea" data-bind="exp1.whereLooked"
+              placeholder="着目した部分を書いてみよう"></textarea>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-template-1">AI相談テンプレを作る →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面5: AI相談テンプレ生成画面（1つ目）
+         ===================================================== -->
+    <section id="screen-template-1" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">AIに相談するテンプレートを作ろう</h2>
+
+        <div class="notice-card">
+          <strong>大切なお知らせ</strong>
+          <p>
+            AIは「答えを教えてくれる存在」ではありません。
+            あなたが<strong>自分で考えるための“きっかけ”</strong>を作ってくれる相棒です。
+            下のテンプレートをコピーして、AIに「答え」ではなく「問い」をくれるようお願いしてみよう。
+          </p>
+        </div>
+
+        <div class="template-card">
+          <label class="memo-label">あなた専用テンプレート</label>
+          <textarea id="template-1" class="template-textarea" readonly></textarea>
+          <div class="action-row split">
+            <button class="btn btn-secondary" data-action="copy-template" data-target="template-1">
+              📋 コピーする
+            </button>
+            <a id="ai-link-1" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+              💬 AIに相談してみよう
+            </a>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-memo-post-1">AIと話したら次へ →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面6: 探究メモ更新画面（AI使用後・1つ目）
+         ===================================================== -->
+    <section id="screen-memo-post-1" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">AIとの対話で深まった考えを書こう</h2>
+        <p class="screen-lead">AIと話したり調べたりして、見えてきたことを記録しよう。</p>
+
+        <div class="memo-card">
+          <div class="memo-row">
+            <label class="memo-label" for="exp1-afterAI">
+              AIとの対話や調査を通して分かったこと
+              <span class="memo-hint">例：「外国との交流だけでなく、宗教とも関係していると分かった」</span>
+            </label>
+            <textarea id="exp1-afterAI" class="memo-textarea" data-bind="exp1.afterAI"
+              placeholder="新しく分かったことを書こう"></textarea>
+          </div>
+
+          <div class="memo-row">
+            <label class="memo-label" for="exp1-changedMind">
+              最初の考えと変わったこと
+              <span class="memo-hint">例：「最初はただの外国人だと思ったが、宣教師や貿易に関わる人物かもしれないと考えるようになった」</span>
+            </label>
+            <textarea id="exp1-changedMind" class="memo-textarea" data-bind="exp1.changedMind"
+              placeholder="考えがどう変わった？"></textarea>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-explore-2">もう一度資料を見る →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面7: もう一度資料を見る（2回目の探索）
+         ===================================================== -->
+    <section id="screen-explore-2" class="screen">
+      <div class="container container-wide">
+        <h2 class="screen-title-text">もう一度資料を見てみよう</h2>
+        <p class="screen-lead">
+          1つ目の探究を終えた後、もう一度資料を見てみよう。
+          最初とは違うところが気になるかもしれません。
+          <strong>1つ目とは別のポイント</strong>を選びましょう。
+        </p>
+
+        <div class="explore-layout">
+          <div class="image-area">
+            <div class="zoom-toolbar">
+              <button class="btn-zoom" data-zoom="out" aria-label="縮小">−</button>
+              <button class="btn-zoom" data-zoom="reset" aria-label="リセット">⟲</button>
+              <button class="btn-zoom" data-zoom="in" aria-label="拡大">＋</button>
+              <span class="zoom-level" id="zoom-level-2">100%</span>
+            </div>
+            <div class="image-viewport" data-explore="2">
+              <div class="image-stage" data-stage="2">
+                <img class="resource-image" data-img="2" alt="選択した資料" />
+              </div>
+            </div>
+          </div>
+
+          <aside class="info-panel" data-info="2">
+            <h3 class="info-title">ポイントの説明</h3>
+            <p class="info-empty">気になる丸印をクリックすると、ここに説明が表示されます。</p>
+            <div class="info-content hidden">
+              <div class="info-badge"></div>
+              <h4 class="info-name"></h4>
+              <p class="info-desc"></p>
+              <button class="btn btn-primary btn-block" data-action="select-point-2">
+                2つ目を探究する！
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面8a: 2つ目の探究メモ（AI使用前）
+         ===================================================== -->
+    <section id="screen-memo-pre-2" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">まずは自分で考えてみよう</h2>
+
+        <div class="memo-card">
+          <div class="memo-row">
+            <label class="memo-label">注目したもの</label>
+            <div class="memo-pill" data-bind="exp2.pointName">—</div>
+          </div>
+
+          <div class="memo-row">
+            <label class="memo-label" for="exp2-firstNotice">
+              最初に気づいたこと
+              <span class="memo-hint">例：「服装が違う」「船が大きい」「荷物が多い」</span>
+            </label>
+            <textarea id="exp2-firstNotice" class="memo-textarea" data-bind="exp2.firstNotice"
+              placeholder="気づいたことを自由に書いてみよう"></textarea>
+          </div>
+
+          <div class="memo-row">
+            <label class="memo-label" for="exp2-whereLooked">
+              資料のどこを見てそう思った？
+              <span class="memo-hint">例：「黒い服」「帽子」「大きな船」「荷物を運んでいる様子」</span>
+            </label>
+            <textarea id="exp2-whereLooked" class="memo-textarea" data-bind="exp2.whereLooked"
+              placeholder="着目した部分を書いてみよう"></textarea>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-template-2">AI相談テンプレを作る →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面8b: AI相談テンプレ（2つ目）
+         ===================================================== -->
+    <section id="screen-template-2" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">AIに相談するテンプレートを作ろう</h2>
+
+        <div class="notice-card">
+          <strong>大切なお知らせ</strong>
+          <p>
+            AIに「答え」ではなく、考えを深めるための<strong>問い</strong>をもらおう。
+          </p>
+        </div>
+
+        <div class="template-card">
+          <label class="memo-label">あなた専用テンプレート</label>
+          <textarea id="template-2" class="template-textarea" readonly></textarea>
+          <div class="action-row split">
+            <button class="btn btn-secondary" data-action="copy-template" data-target="template-2">
+              📋 コピーする
+            </button>
+            <a id="ai-link-2" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+              💬 AIに相談してみよう
+            </a>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-memo-post-2">AIと話したら次へ →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面8c: 探究メモ更新（AI使用後・2つ目）
+         ===================================================== -->
+    <section id="screen-memo-post-2" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">AIとの対話で深まった考えを書こう</h2>
+
+        <div class="memo-card">
+          <div class="memo-row">
+            <label class="memo-label" for="exp2-afterAI">
+              AIとの対話や調査を通して分かったこと
+            </label>
+            <textarea id="exp2-afterAI" class="memo-textarea" data-bind="exp2.afterAI"
+              placeholder="新しく分かったことを書こう"></textarea>
+          </div>
+
+          <div class="memo-row">
+            <label class="memo-label" for="exp2-changedMind">
+              最初の考えと変わったこと
+            </label>
+            <textarea id="exp2-changedMind" class="memo-textarea" data-bind="exp2.changedMind"
+              placeholder="考えがどう変わった？"></textarea>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-summary">2つの探究を見比べる →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面9: 2つの探究まとめ表示画面
+         ===================================================== -->
+    <section id="screen-summary" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">📚 2つの探究をふり返ろう</h2>
+        <p class="screen-lead">1つ目と2つ目の探究内容を見比べてみましょう。</p>
+
+        <div class="summary-grid">
+          <div class="summary-col">
+            <h3 class="summary-head summary-head-1">【1つ目の探究】</h3>
+            <dl class="summary-list">
+              <dt>注目したもの</dt><dd data-bind="exp1.pointName">—</dd>
+              <dt>最初に気づいたこと</dt><dd data-bind="exp1.firstNotice">—</dd>
+              <dt>資料のどこを見たか</dt><dd data-bind="exp1.whereLooked">—</dd>
+              <dt>AIとの対話や調査で分かったこと</dt><dd data-bind="exp1.afterAI">—</dd>
+              <dt>最初の考えと変わったこと</dt><dd data-bind="exp1.changedMind">—</dd>
+            </dl>
+          </div>
+          <div class="summary-col">
+            <h3 class="summary-head summary-head-2">【2つ目の探究】</h3>
+            <dl class="summary-list">
+              <dt>注目したもの</dt><dd data-bind="exp2.pointName">—</dd>
+              <dt>最初に気づいたこと</dt><dd data-bind="exp2.firstNotice">—</dd>
+              <dt>資料のどこを見たか</dt><dd data-bind="exp2.whereLooked">—</dd>
+              <dt>AIとの対話や調査で分かったこと</dt><dd data-bind="exp2.afterAI">—</dd>
+              <dt>最初の考えと変わったこと</dt><dd data-bind="exp2.changedMind">—</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-relation">2つの関係を考える →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面10: 関連性整理画面
+         ===================================================== -->
+    <section id="screen-relation" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">🔗 2つの関係を考えよう</h2>
+        <p class="screen-lead question-text">
+          「あなたが探究した2つは、どのように関係していると思いますか？」
+        </p>
+
+        <div class="memo-card">
+          <div class="memo-row">
+            <label class="memo-label" for="relation-text">
+              2つの関連性
+              <span class="memo-hint">例：「外国人と荷物は、外国との交流や貿易によってつながっている」</span><br>
+              <span class="memo-hint">例：「船と港は、人や物の移動を表している」</span>
+            </label>
+            <textarea id="relation-text" class="memo-textarea" data-bind="relation"
+              placeholder="2つを結ぶ言葉やテーマを書いてみよう"></textarea>
+          </div>
+
+          <div class="hint-card">
+            <strong>ヒント</strong>
+            <ul>
+              <li>「人の動き」と「物の動き」はつながっていないかな？</li>
+              <li>「文化」「宗教」「経済」など、テーマで結べないかな？</li>
+              <li>「場所」「立場」「目的」で比べてみよう。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-final">最終まとめへ →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面11: 最終まとめ入力画面
+         ===================================================== -->
+    <section id="screen-final" class="screen">
+      <div class="container">
+        <h2 class="screen-title-text">🎯 最後の問い</h2>
+        <p class="screen-lead question-text">
+          「この資料は何を伝えようとしていると思いますか？」
+        </p>
+
+        <div class="memo-card">
+          <div class="memo-row">
+            <label class="memo-label" for="final-text">
+              最終まとめ
+              <span class="memo-hint">2つの探究で分かったことを使って、自分の言葉でまとめよう。</span>
+            </label>
+            <textarea id="final-text" class="memo-textarea memo-textarea-large" data-bind="finalSummary"
+              placeholder="この資料が伝えようとしていることは……"></textarea>
+          </div>
+        </div>
+
+        <div class="action-row split">
+          <button class="btn btn-ghost" data-action="back">← 前のページに戻る</button>
+          <button class="btn btn-primary" data-action="go-result">探究結果を見る →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         画面12: あなたの探究結果画面
+         ===================================================== -->
+    <section id="screen-result" class="screen">
+      <div class="container">
+        <div class="result-header">
+          <h2 class="result-title">🏆 あなたの探究結果</h2>
+          <p class="result-sub">2つの探究を通じて見えてきた、あなたの考えです。</p>
+        </div>
+
+        <div id="result-content" class="result-content">
+          <!-- JSで生成 -->
+        </div>
+
+        <div class="action-row split no-print">
+          <button class="btn btn-secondary" data-action="print">🖨️ 印刷する</button>
+          <button class="btn btn-primary" data-action="restart">最初に戻る</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
