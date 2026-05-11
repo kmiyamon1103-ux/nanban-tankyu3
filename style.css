@@ -375,7 +375,7 @@ textarea { resize: vertical; }
   align-items: center;
   justify-content: center;
   background:
-    url("images/title-bg.png") center/cover no-repeat,
+    url("./images/title-bg.png") center/cover no-repeat,
     #d4a96a;
   position: relative;
   overflow: hidden;
@@ -536,7 +536,7 @@ textarea { resize: vertical; }
   align-items: center;
   justify-content: center;
   background:
-    url("images/title-bg.png") center/cover no-repeat,
+    url("./images/title-bg.png") center/cover no-repeat,
     #d4a96a;
   position: relative;
   overflow: hidden;

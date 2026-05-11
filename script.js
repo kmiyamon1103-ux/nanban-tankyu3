@@ -27,13 +27,13 @@ const RESOURCES = [
   {
     id: 1,
     label: '資料1',
-    image: 'images/sample1.png',
+    image: './images/sample1.png',
     caption: '南蛮貿易図屏風（資料1）',
   },
   {
     id: 2,
     label: '資料2',
-    image: 'images/sample2.png',
+    image: './images/sample2.png',
     caption: '南蛮貿易図屏風（資料2）',
   },
 ];
