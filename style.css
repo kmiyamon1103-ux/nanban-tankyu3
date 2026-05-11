@@ -67,7 +67,9 @@ html, body {
 }
 
 img, video { max-width: 100%; height: auto; }
-* { min-width: 0; }              /* flex/gridでのオーバーフロー防止 */
+/* flex/grid の子要素がオーバーフローしないように。
+   ただし置換要素（img/svg/video/picture）はサイズの算出が壊れるので除外する。 */
+*:not(img):not(svg):not(picture):not(video):not(canvas) { min-width: 0; }
 
 /* キラキラ装飾のための水玉背景（黄系で控えめに） */
 body::before {
@@ -850,18 +852,17 @@ textarea { resize: vertical; }
 }
 .image-stage {
   position: relative; /* クリックポイントを画像基準で配置するため必須 */
-  display: inline-block;
+  display: block;
+  width: 100%;
+  max-width: 1200px;   /* PCでは1200px、それ以下は画面幅に追従 */
+  margin: 0 auto;
   transform-origin: top left;
   transition: transform 0.2s ease;
   /* JSでtransform: scale() を適用 */
-  /* 画面幅に合わせて自然に縮小する（はみ出さない） */
-  max-width: 100%;
 }
 .resource-image {
   display: block;
-  /* 内部表示サイズ：理想は1200px、ただし親より大きくならない */
-  width: min(1200px, 100%);
-  max-width: 100%;
+  width: 100%;
   height: auto;
 }
 
